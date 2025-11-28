@@ -48,7 +48,6 @@
             margin-bottom: 20px;
         }
 
-        /* === 遊戲主容器 (手機上看到的樣子) === */
         #game-container {
             background: white;
             padding: 20px;
@@ -91,7 +90,7 @@
             transition: all 0.2s ease;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end; /* 內容靠下 */
+            justify-content: flex-end;
             align-items: center;
             text-align: center;
             aspect-ratio: 1 / 1; 
@@ -110,7 +109,6 @@
             border-width: 0;
         }
 
-        /* 解決變形的關鍵：背景圖層 */
         .image-layer {
             position: absolute;
             top: 0;
@@ -120,14 +118,13 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            z-index: 1;
+            z-index: 1; /* 圖片在底層 */
             background-image: none;
         }
 
-        /* 標籤樣式 (手機版) */
         .label-box {
             pointer-events: none;
-            z-index: 10;
+            z-index: 10; /* 文字在最上層 */
             width: auto;
             max-width: 90%;
             background: rgba(255, 255, 255, 0.75);
@@ -150,19 +147,18 @@
         }
 
         .label-zh {
-            font-size: 0.5rem; /* 小字 */
+            font-size: 0.5rem;
             color: var(--primary-purple);
             margin: 2px 0 0 0;
             font-weight: bold;
             line-height: 1.1;
         }
 
-        /* === 匯出專用樣式 (Export Mode) === 
-           這就是高畫質的秘密，當容器加上這個 class 時，
-           它會變成適合 1080px 寬度的巨大尺寸與字體。
+        /* === 高畫質匯出模式 (Export Mode) === 
+           這裡設定了截圖當下的樣式，確保文字夠大、不會消失
         */
         .export-mode {
-            width: 1080px !important; /* 強制寬度 */
+            width: 1080px !important;
             max-width: none !important;
             padding: 40px !important;
             border-radius: 40px !important;
@@ -175,31 +171,31 @@
             border-radius: 80px !important;
         }
 
-        .export-mode .grid {
-            gap: 20px !important;
+        .export-mode .grid { gap: 20px !important; }
+        .export-mode .grid-item { 
+            border-radius: 20px !important; 
+            border-width: 4px !important; 
+            padding-bottom: 25px !important; 
         }
-
-        .export-mode .grid-item {
-            border-radius: 20px !important;
-            border-width: 4px !important;
-            padding-bottom: 20px !important;
-        }
-
-        .export-mode .label-box {
-            padding: 10px 24px !important;
-            border-radius: 40px !important;
+        
+        /* 確保匯出時文字清晰可見 */
+        .export-mode .label-box { 
+            padding: 12px 30px !important; 
+            border-radius: 50px !important; 
             margin-bottom: 5px !important;
+            background: rgba(255, 255, 255, 0.9) !important; /* 增加不透明度確保清晰 */
+            z-index: 999 !important; /* 強制置頂 */
         }
-
-        .export-mode .label-zh {
-            font-size: 20px !important; /* 匯出時字體變清晰 */
-            margin-top: 5px !important;
+        
+        .export-mode .label-zh { 
+            font-size: 24px !important; /* 加大字體 */
+            margin-top: 5px !important; 
         }
-
-        .export-mode .label-en {
-            font-size: 14px !important;
+        
+        .export-mode .label-en { 
+            font-size: 16px !important; 
         }
-        /* 匯出結束 */
+        /* 匯出設定結束 */
 
         input[type="file"] { display: none; }
 
@@ -233,13 +229,23 @@
             color: var(--primary-purple);
             border: 2px solid var(--primary-purple);
         }
+        
+        .modal-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            align-items: center;
+        }
+        
+        .modal-actions button {
+            width: 80%;
+            max-width: 300px;
+        }
 
         #result-modal {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(40, 30, 50, 0.95);
             display: none;
             z-index: 9999;
@@ -279,6 +285,7 @@
             background: rgba(255,255,255,0.1);
             padding: 5px 15px;
             border-radius: 20px;
+            text-align: center;
         }
 
         #final-image {
@@ -290,29 +297,16 @@
             margin-bottom: 25px;
         }
 
-        #close-modal {
-            background: white;
-            color: var(--primary-purple);
-            font-weight: bold;
-            padding: 12px 40px;
-            border-radius: 50px;
-            width: auto;
-            min-width: 150px;
-        }
-
         @media (max-width: 480px) {
             body { padding: 10px; }
             h1 { font-size: 1.5rem; }
             .subtitle { font-size: 0.8rem; margin-bottom: 15px; }
-            
             #game-container { padding: 12px; border-radius: 12px; }
             .header-deco { font-size: 1rem; padding: 8px 10px; margin-bottom: 12px; }
             .grid { gap: 6px; }
-
             .label-box { padding: 3px 8px; }
             .label-zh { font-size: 0.45rem; }
             .label-en { font-size: 0.5rem; }
-            
             .actions { gap: 10px; }
             button { width: 48%; font-size: 0.9rem; padding: 10px 0; }
         }
@@ -329,51 +323,15 @@
         </div>
 
         <div class="grid">
-            <div class="grid-item" onclick="triggerUpload(0)">
-                <div id="bg-0" class="image-layer"></div>
-                <div class="label-box"><div class="label-en">ANIMAL</div><div class="label-zh">動物</div></div>
-                <input type="file" id="input-0" accept="image/*" onchange="previewImage(this, 0)">
-            </div>
-            <div class="grid-item" onclick="triggerUpload(1)">
-                <div id="bg-1" class="image-layer"></div>
-                <div class="label-box"><div class="label-en">HOBBY</div><div class="label-zh">興趣</div></div>
-                <input type="file" id="input-1" accept="image/*" onchange="previewImage(this, 1)">
-            </div>
-            <div class="grid-item" onclick="triggerUpload(2)">
-                <div id="bg-2" class="image-layer"></div>
-                <div class="label-box"><div class="label-en">PLANT</div><div class="label-zh">植物</div></div>
-                <input type="file" id="input-2" accept="image/*" onchange="previewImage(this, 2)">
-            </div>
-            <div class="grid-item" onclick="triggerUpload(3)">
-                <div id="bg-3" class="image-layer"></div>
-                <div class="label-box"><div class="label-en">CHARACTER</div><div class="label-zh">角色</div></div>
-                <input type="file" id="input-3" accept="image/*" onchange="previewImage(this, 3)">
-            </div>
-            <div class="grid-item" onclick="triggerUpload(4)" style="border-style: solid; border-color: #e0e0e0; background: #fffdf0;">
-                <div id="bg-4" class="image-layer"></div>
-                <div class="label-box"><div class="label-en">SONG</div><div class="label-zh">歌曲</div></div>
-                <input type="file" id="input-4" accept="image/*" onchange="previewImage(this, 4)">
-            </div>
-            <div class="grid-item" onclick="triggerUpload(5)">
-                <div id="bg-5" class="image-layer"></div>
-                <div class="label-box"><div class="label-en">COLOR</div><div class="label-zh">顏色</div></div>
-                <input type="file" id="input-5" accept="image/*" onchange="previewImage(this, 5)">
-            </div>
-            <div class="grid-item" onclick="triggerUpload(6)">
-                <div id="bg-6" class="image-layer"></div>
-                <div class="label-box"><div class="label-en">FOOD</div><div class="label-zh">食物</div></div>
-                <input type="file" id="input-6" accept="image/*" onchange="previewImage(this, 6)">
-            </div>
-            <div class="grid-item" onclick="triggerUpload(7)">
-                <div id="bg-7" class="image-layer"></div>
-                <div class="label-box"><div class="label-en">PLACE</div><div class="label-zh">地點</div></div>
-                <input type="file" id="input-7" accept="image/*" onchange="previewImage(this, 7)">
-            </div>
-            <div class="grid-item" onclick="triggerUpload(8)">
-                <div id="bg-8" class="image-layer"></div>
-                <div class="label-box"><div class="label-en">SEASON</div><div class="label-zh">季節</div></div>
-                <input type="file" id="input-8" accept="image/*" onchange="previewImage(this, 8)">
-            </div>
+            <div class="grid-item" onclick="triggerUpload(0)"><div id="bg-0" class="image-layer"></div><div class="label-box"><div class="label-en">ANIMAL</div><div class="label-zh">動物</div></div><input type="file" id="input-0" accept="image/*" onchange="previewImage(this, 0)"></div>
+            <div class="grid-item" onclick="triggerUpload(1)"><div id="bg-1" class="image-layer"></div><div class="label-box"><div class="label-en">HOBBY</div><div class="label-zh">興趣</div></div><input type="file" id="input-1" accept="image/*" onchange="previewImage(this, 1)"></div>
+            <div class="grid-item" onclick="triggerUpload(2)"><div id="bg-2" class="image-layer"></div><div class="label-box"><div class="label-en">PLANT</div><div class="label-zh">植物</div></div><input type="file" id="input-2" accept="image/*" onchange="previewImage(this, 2)"></div>
+            <div class="grid-item" onclick="triggerUpload(3)"><div id="bg-3" class="image-layer"></div><div class="label-box"><div class="label-en">CHARACTER</div><div class="label-zh">角色</div></div><input type="file" id="input-3" accept="image/*" onchange="previewImage(this, 3)"></div>
+            <div class="grid-item" onclick="triggerUpload(4)" style="border-style: solid; border-color: #e0e0e0; background: #fffdf0;"><div id="bg-4" class="image-layer"></div><div class="label-box"><div class="label-en">SONG</div><div class="label-zh">歌曲</div></div><input type="file" id="input-4" accept="image/*" onchange="previewImage(this, 4)"></div>
+            <div class="grid-item" onclick="triggerUpload(5)"><div id="bg-5" class="image-layer"></div><div class="label-box"><div class="label-en">COLOR</div><div class="label-zh">顏色</div></div><input type="file" id="input-5" accept="image/*" onchange="previewImage(this, 5)"></div>
+            <div class="grid-item" onclick="triggerUpload(6)"><div id="bg-6" class="image-layer"></div><div class="label-box"><div class="label-en">FOOD</div><div class="label-zh">食物</div></div><input type="file" id="input-6" accept="image/*" onchange="previewImage(this, 6)"></div>
+            <div class="grid-item" onclick="triggerUpload(7)"><div id="bg-7" class="image-layer"></div><div class="label-box"><div class="label-en">PLACE</div><div class="label-zh">地點</div></div><input type="file" id="input-7" accept="image/*" onchange="previewImage(this, 7)"></div>
+            <div class="grid-item" onclick="triggerUpload(8)"><div id="bg-8" class="image-layer"></div><div class="label-box"><div class="label-en">SEASON</div><div class="label-zh">季節</div></div><input type="file" id="input-8" accept="image/*" onchange="previewImage(this, 8)"></div>
         </div>
     </div>
 
@@ -384,10 +342,14 @@
 
     <div id="result-modal" onclick="closeModalOnBg(event)">
         <div class="modal-content-wrapper">
-            <h3>長按儲存圖片</h3>
-            <p class="hint">別忘了分享到 IG @zooeywonder 喔！</p>
+            <h3>圖片製作完成！</h3>
+            <p class="hint">👇 點擊分享，或長按圖片儲存 👇</p>
             <img id="final-image" src="" alt="Generated Image">
-            <button id="close-modal" onclick="closeModal()">關閉視窗</button>
+            
+            <div class="modal-actions">
+                <button id="share-btn" onclick="shareImage()">分享圖片 (IG/其他APP)</button>
+                <button id="close-modal" onclick="closeModal()" class="secondary">關閉視窗</button>
+            </div>
         </div>
     </div>
 
@@ -409,6 +371,39 @@
             }
         }
 
+        async function shareImage() {
+            const btn = document.getElementById('share-btn');
+            const originalText = btn.innerText;
+            btn.innerText = "呼叫分享中...";
+            btn.disabled = true;
+
+            try {
+                if (!navigator.share) {
+                    throw new Error("您的瀏覽器不支援原生分享功能。\n請改用「長按圖片」的方式儲存。");
+                }
+                const imgData = document.getElementById('final-image').src;
+                const blob = await (await fetch(imgData)).blob();
+                const file = new File([blob], "my-zooey-grid.png", { type: blob.type });
+
+                if (navigator.canShare && !navigator.canShare({ files: [file] })) {
+                    throw new Error("您的裝置不支援圖片分享，請改用長按儲存。");
+                }
+
+                await navigator.share({
+                    files: [file],
+                    title: '這是你眼中的玠瑋',
+                    text: '這是我做的九宮格！'
+                });
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    alert(error.message || "分享發生錯誤，請試試長按圖片儲存。");
+                }
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
         async function generateImage() {
             const container = document.getElementById('game-container');
             const modal = document.getElementById('result-modal');
@@ -419,52 +414,28 @@
             btn.innerText = "高畫質處理中...";
             btn.disabled = true;
 
-            // 1. 建立一個替身 (Ghost Element)
             const ghost = container.cloneNode(true);
-            
-            // 2. 將替身加上「匯出模式」的 class，這會觸發 CSS 強制變大
             ghost.classList.add('export-mode');
-            
-            // 3. 將替身放到螢幕外，但必須在 DOM 裡面瀏覽器才畫得出來
-            ghost.style.position = "absolute";
-            ghost.style.top = "-9999px"; 
-            ghost.style.left = "0";
+            ghost.style.position = "absolute"; ghost.style.top = "-9999px"; ghost.style.left = "0";
             document.body.appendChild(ghost);
 
-            // 4. 重要：因為 cloneNode 不會複製 <input> 的檔案或動態背景圖
-            // 我們需要手動把原圖的背景搬過去
             const originalLayers = container.querySelectorAll('.image-layer');
             const ghostLayers = ghost.querySelectorAll('.image-layer');
-            originalLayers.forEach((layer, i) => {
-                ghostLayers[i].style.backgroundImage = layer.style.backgroundImage;
-            });
+            originalLayers.forEach((layer, i) => { ghostLayers[i].style.backgroundImage = layer.style.backgroundImage; });
             
-            // 5. 使用 html2canvas 拍照
-            // scale: 2 配合 1080px 寬度，會產生約 2160px 的超大圖，保證不糊
             try {
-                const canvas = await html2canvas(ghost, {
-                    scale: 2, 
-                    backgroundColor: null,
-                    useCORS: true
-                });
-
+                const canvas = await html2canvas(ghost, { scale: 2, backgroundColor: null, useCORS: true });
                 const imgData = canvas.toDataURL('image/png');
                 finalImage.src = imgData;
                 modal.style.display = 'flex';
 
-                // 電腦版嘗試自動下載
-                try {
-                    const link = document.createElement('a');
-                    link.download = 'my-zooey.png';
-                    link.href = imgData;
-                    link.click();
-                } catch(e) {}
+                // 備註：已移除自動下載連結 (link.click())
+                // 使用者現在僅依賴彈出視窗的長按儲存或分享按鈕
 
             } catch (err) {
                 console.error(err);
                 alert("生成失敗");
             } finally {
-                // 6. 清理戰場：移除替身
                 document.body.removeChild(ghost);
                 btn.innerText = originalText;
                 btn.disabled = false;
