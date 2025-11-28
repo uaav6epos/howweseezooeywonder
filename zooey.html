@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>這是你眼中的玠瑋</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        :root {
+            --primary-purple: #9b72aa;
+            --light-purple: #e6e6fa;
+            --bg-purple: #f8f4fc;
+            --dark-text: #5c4b6b;
+            --card-shadow: 0 8px 20px rgba(155, 114, 170, 0.2);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Zen Maru Gothic', sans-serif;
+            background-color: var(--bg-purple);
+            color: var(--dark-text);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-purple);
+            font-size: 1.8rem;
+            margin: 10px 0 5px 0;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 0px #fff;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        /* === 遊戲主容器 (手機上看到的樣子) === */
+        #game-container {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            max-width: 500px;
+            width: 100%;
+            position: relative;
+        }
+
+        .header-deco {
+            background: var(--light-purple);
+            color: var(--dark-text);
+            padding: 10px 15px;
+            border-radius: 50px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            aspect-ratio: 1 / 1;
+        }
+
+        .grid-item {
+            background-color: #fcfcfc;
+            border: 2px dashed #dcdcdc;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; /* 內容靠下 */
+            align-items: center;
+            text-align: center;
+            aspect-ratio: 1 / 1; 
+            z-index: 0;
+            padding-bottom: 8px;
+        }
+
+        .grid-item:hover {
+            border-color: var(--primary-purple);
+            background-color: #fdfaff;
+        }
+
+        .grid-item.has-image {
+            border-style: solid;
+            border-color: white;
+            border-width: 0;
+        }
+
+        /* 解決變形的關鍵：背景圖層 */
+        .image-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 1;
+            background-image: none;
+        }
+
+        /* 標籤樣式 (手機版) */
+        .label-box {
+            pointer-events: none;
+            z-index: 10;
+            width: auto;
+            max-width: 90%;
+            background: rgba(255, 255, 255, 0.75);
+            padding: 4px 10px;
+            border-radius: 15px;
+            backdrop-filter: blur(2px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .label-en {
+            font-size: 0.6rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: var(--primary-purple);
+            opacity: 0.8;
+            line-height: 1;
+        }
+
+        .label-zh {
+            font-size: 0.5rem; /* 小字 */
+            color: var(--primary-purple);
+            margin: 2px 0 0 0;
+            font-weight: bold;
+            line-height: 1.1;
+        }
+
+        /* === 匯出專用樣式 (Export Mode) === 
+           這就是高畫質的秘密，當容器加上這個 class 時，
+           它會變成適合 1080px 寬度的巨大尺寸與字體。
+        */
+        .export-mode {
+            width: 1080px !important; /* 強制寬度 */
+            max-width: none !important;
+            padding: 40px !important;
+            border-radius: 40px !important;
+        }
+
+        .export-mode .header-deco {
+            font-size: 40px !important;
+            padding: 20px 0 !important;
+            margin-bottom: 30px !important;
+            border-radius: 80px !important;
+        }
+
+        .export-mode .grid {
+            gap: 20px !important;
+        }
+
+        .export-mode .grid-item {
+            border-radius: 20px !important;
+            border-width: 4px !important;
+            padding-bottom: 20px !important;
+        }
+
+        .export-mode .label-box {
+            padding: 10px 24px !important;
+            border-radius: 40px !important;
+            margin-bottom: 5px !important;
+        }
+
+        .export-mode .label-zh {
+            font-size: 20px !important; /* 匯出時字體變清晰 */
+            margin-top: 5px !important;
+        }
+
+        .export-mode .label-en {
+            font-size: 14px !important;
+        }
+        /* 匯出結束 */
+
+        input[type="file"] { display: none; }
+
+        .actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        button {
+            background-color: var(--primary-purple);
+            color: white;
+            border: none;
+            padding: 12px 0;
+            width: 120px;
+            border-radius: 50px;
+            font-family: 'Zen Maru Gothic', sans-serif;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(155, 114, 170, 0.3);
+            transition: transform 0.1s;
+        }
+
+        button:active { transform: scale(0.95); }
+
+        button.secondary {
+            background-color: white;
+            color: var(--primary-purple);
+            border: 2px solid var(--primary-purple);
+        }
+
+        #result-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(40, 30, 50, 0.95);
+            display: none;
+            z-index: 9999;
+            overflow-y: auto;
+            padding: 20px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .modal-content-wrapper {
+            width: 100%;
+            max-width: 450px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 40px;
+            margin-bottom: 40px;
+            animation: popUp 0.3s ease-out;
+        }
+
+        @keyframes popUp {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        #result-modal h3 {
+            color: white;
+            margin: 0 0 10px 0;
+            font-size: 1.2rem;
+        }
+
+        #result-modal p.hint {
+            color: #ddd;
+            margin: 0 0 20px 0;
+            font-size: 0.9rem;
+            background: rgba(255,255,255,0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+
+        #final-image {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            border: 5px solid white; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-bottom: 25px;
+        }
+
+        #close-modal {
+            background: white;
+            color: var(--primary-purple);
+            font-weight: bold;
+            padding: 12px 40px;
+            border-radius: 50px;
+            width: auto;
+            min-width: 150px;
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            h1 { font-size: 1.5rem; }
+            .subtitle { font-size: 0.8rem; margin-bottom: 15px; }
+            
+            #game-container { padding: 12px; border-radius: 12px; }
+            .header-deco { font-size: 1rem; padding: 8px 10px; margin-bottom: 12px; }
+            .grid { gap: 6px; }
+
+            .label-box { padding: 3px 8px; }
+            .label-zh { font-size: 0.45rem; }
+            .label-en { font-size: 0.5rem; }
+            
+            .actions { gap: 10px; }
+            button { width: 48%; font-size: 0.9rem; padding: 10px 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>這是你眼中的玠瑋</h1>
+    <p class="subtitle">點擊格子，上傳圖片</p>
+
+    <div id="game-container">
+        <div class="header-deco">
+            <span>How we see Zooey</span>
+        </div>
+
+        <div class="grid">
+            <div class="grid-item" onclick="triggerUpload(0)">
+                <div id="bg-0" class="image-layer"></div>
+                <div class="label-box"><div class="label-en">ANIMAL</div><div class="label-zh">動物</div></div>
+                <input type="file" id="input-0" accept="image/*" onchange="previewImage(this, 0)">
+            </div>
+            <div class="grid-item" onclick="triggerUpload(1)">
+                <div id="bg-1" class="image-layer"></div>
+                <div class="label-box"><div class="label-en">HOBBY</div><div class="label-zh">興趣</div></div>
+                <input type="file" id="input-1" accept="image/*" onchange="previewImage(this, 1)">
+            </div>
+            <div class="grid-item" onclick="triggerUpload(2)">
+                <div id="bg-2" class="image-layer"></div>
+                <div class="label-box"><div class="label-en">PLANT</div><div class="label-zh">植物</div></div>
+                <input type="file" id="input-2" accept="image/*" onchange="previewImage(this, 2)">
+            </div>
+            <div class="grid-item" onclick="triggerUpload(3)">
+                <div id="bg-3" class="image-layer"></div>
+                <div class="label-box"><div class="label-en">CHARACTER</div><div class="label-zh">角色</div></div>
+                <input type="file" id="input-3" accept="image/*" onchange="previewImage(this, 3)">
+            </div>
+            <div class="grid-item" onclick="triggerUpload(4)" style="border-style: solid; border-color: #e0e0e0; background: #fffdf0;">
+                <div id="bg-4" class="image-layer"></div>
+                <div class="label-box"><div class="label-en">SONG</div><div class="label-zh">歌曲</div></div>
+                <input type="file" id="input-4" accept="image/*" onchange="previewImage(this, 4)">
+            </div>
+            <div class="grid-item" onclick="triggerUpload(5)">
+                <div id="bg-5" class="image-layer"></div>
+                <div class="label-box"><div class="label-en">COLOR</div><div class="label-zh">顏色</div></div>
+                <input type="file" id="input-5" accept="image/*" onchange="previewImage(this, 5)">
+            </div>
+            <div class="grid-item" onclick="triggerUpload(6)">
+                <div id="bg-6" class="image-layer"></div>
+                <div class="label-box"><div class="label-en">FOOD</div><div class="label-zh">食物</div></div>
+                <input type="file" id="input-6" accept="image/*" onchange="previewImage(this, 6)">
+            </div>
+            <div class="grid-item" onclick="triggerUpload(7)">
+                <div id="bg-7" class="image-layer"></div>
+                <div class="label-box"><div class="label-en">PLACE</div><div class="label-zh">地點</div></div>
+                <input type="file" id="input-7" accept="image/*" onchange="previewImage(this, 7)">
+            </div>
+            <div class="grid-item" onclick="triggerUpload(8)">
+                <div id="bg-8" class="image-layer"></div>
+                <div class="label-box"><div class="label-en">SEASON</div><div class="label-zh">季節</div></div>
+                <input type="file" id="input-8" accept="image/*" onchange="previewImage(this, 8)">
+            </div>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button class="secondary" onclick="resetGrid()">重置</button>
+        <button onclick="generateImage()">儲存成圖片</button>
+    </div>
+
+    <div id="result-modal" onclick="closeModalOnBg(event)">
+        <div class="modal-content-wrapper">
+            <h3>圖片製作完成！</h3>
+            <p class="hint">請長按下方圖片加入相片</p>
+            <img id="final-image" src="" alt="Generated Image">
+            <button id="close-modal" onclick="closeModal()">關閉視窗</button>
+        </div>
+    </div>
+
+    <script>
+        function triggerUpload(index) {
+            document.getElementById(`input-${index}`).click();
+        }
+
+        function previewImage(input, index) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const bgLayer = document.getElementById(`bg-${index}`);
+                    const gridItem = input.parentElement;
+                    bgLayer.style.backgroundImage = `url(${e.target.result})`;
+                    gridItem.classList.add('has-image');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        async function generateImage() {
+            const container = document.getElementById('game-container');
+            const modal = document.getElementById('result-modal');
+            const finalImage = document.getElementById('final-image');
+            const btn = document.querySelector('button[onclick="generateImage()"]');
+            
+            const originalText = btn.innerText;
+            btn.innerText = "高畫質處理中...";
+            btn.disabled = true;
+
+            // 1. 建立一個替身 (Ghost Element)
+            const ghost = container.cloneNode(true);
+            
+            // 2. 將替身加上「匯出模式」的 class，這會觸發 CSS 強制變大
+            ghost.classList.add('export-mode');
+            
+            // 3. 將替身放到螢幕外，但必須在 DOM 裡面瀏覽器才畫得出來
+            ghost.style.position = "absolute";
+            ghost.style.top = "-9999px"; 
+            ghost.style.left = "0";
+            document.body.appendChild(ghost);
+
+            // 4. 重要：因為 cloneNode 不會複製 <input> 的檔案或動態背景圖
+            // 我們需要手動把原圖的背景搬過去
+            const originalLayers = container.querySelectorAll('.image-layer');
+            const ghostLayers = ghost.querySelectorAll('.image-layer');
+            originalLayers.forEach((layer, i) => {
+                ghostLayers[i].style.backgroundImage = layer.style.backgroundImage;
+            });
+            
+            // 5. 使用 html2canvas 拍照
+            // scale: 2 配合 1080px 寬度，會產生約 2160px 的超大圖，保證不糊
+            try {
+                const canvas = await html2canvas(ghost, {
+                    scale: 2, 
+                    backgroundColor: null,
+                    useCORS: true
+                });
+
+                const imgData = canvas.toDataURL('image/png');
+                finalImage.src = imgData;
+                modal.style.display = 'flex';
+
+                // 電腦版嘗試自動下載
+                try {
+                    const link = document.createElement('a');
+                    link.download = 'my-zooey.png';
+                    link.href = imgData;
+                    link.click();
+                } catch(e) {}
+
+            } catch (err) {
+                console.error(err);
+                alert("生成失敗");
+            } finally {
+                // 6. 清理戰場：移除替身
+                document.body.removeChild(ghost);
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('result-modal').style.display = 'none';
+        }
+        
+        function closeModalOnBg(event) {
+            if (event.target.id === 'result-modal') {
+                closeModal();
+            }
+        }
+
+        function resetGrid() {
+            if(confirm("確定要重置嗎？")) {
+                const items = document.querySelectorAll('.grid-item');
+                items.forEach((item, index) => {
+                    item.classList.remove('has-image');
+                    const bgLayer = document.getElementById(`bg-${index}`);
+                    const input = document.getElementById(`input-${index}`);
+                    bgLayer.style.backgroundImage = "none";
+                    input.value = "";
+                });
+            }
+        }
+    </script>
+
+</body>
+</html>
